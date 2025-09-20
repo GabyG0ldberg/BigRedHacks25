@@ -13,11 +13,14 @@ running = True
 dt = 0
 #elements to track where we are in the game
 closet = True
+endScreen = False
 #Mid screen height
 midheight = screen_height//2
 midwidth = screen_width//2
 topVisible = False
 botVisible = False
+corTop = False
+corBot = False
 
 #initalizing images
 arrow = pygame.image.load("images/arrow-button.png").convert_alpha()
@@ -86,15 +89,15 @@ class Background:
         self.background = filebg #image
         self.background = pygame.transform.scale(self.background,(int(screen_width* 0.75), int((screen_width*.75)* 3 / 4)))
         self.avatar = fileav
-        self.avatar = pygame.transform.scale(self.avatar, (screen.get_width(), screen.get_height()*1.05))
+        self.avatar = pygame.transform.scale(self.avatar, (screen.get_width()*.9, screen.get_height()*1.05))
 
     def draw(self, screen):
         screen.blit(self.background, (0, 0))
-        screen.blit(self.avatar, (0, 0))
+        screen.blit(self.avatar, (-1 * screen_width/15, screen_height/25))
 
 #Block class that basically just takes an image and constructs it so you can set the position of the image
 class Block(pygame.sprite.Sprite):
-    def __init__(self, imagefile, size=(150, 150), pos=None):
+    def __init__(self, imagefile, size=(400, 400), pos=None):
         super().__init__()
         self.visible = False
         self.imagefile = imagefile
@@ -112,6 +115,11 @@ class Block(pygame.sprite.Sprite):
             self.rect = (midwidth, midheight)
         else: 
             self.rect.topleft = pos
+
+        # Shrink the clickable area (bounding box)
+        shrink_by = 0.7  # Use 70% of the original size
+        self.hitbox = self.rect.inflate(-self.rect.width * (1 - shrink_by),
+                                        -self.rect.height * (1 - shrink_by))
     
     def draw(self, surface):
         if self.visible:
@@ -136,45 +144,44 @@ all_media_sprites = pygame.sprite.Group()
 
 # Initializing some blocks and adding them to the closet group
 #TODO: Add all clothes as blocks
-day1_shirt1 = Block(day1_top1, pos=(midwidth*1.1, midheight*0.6))
-day1_shirt2 = Block(day1_top2, pos=(midwidth*1.1, midheight*0.6))
-day1_shirt3 = Block(day1_top3, pos=(midwidth*1.1, midheight*0.6))
-day1_shirt4 = Block(day1_top4, pos=(midwidth*1.1, midheight*0.6))
+day1_shirt1 = Block(day1_top1, pos=(midwidth/1.07, midheight*0.3))
+day1_shirt2 = Block(day1_top2, pos=(midwidth/1.07, midheight*0.3))
+day1_shirt3 = Block(day1_top3, pos=(midwidth/1.07, midheight*0.3))
+day1_shirt4 = Block(day1_top4, pos=(midwidth/1.07, midheight*0.3))
 
-day2_shirt1 = Block(day2_top1, pos=(midwidth*1.1, midheight*0.6))
-day2_shirt2 = Block(day2_top2, pos=(midwidth*1.1, midheight*0.6))
-day2_shirt3 = Block(day2_top3, pos=(midwidth*1.1, midheight*0.6))
-day2_shirt4 = Block(day2_top4, pos=(midwidth*1.1, midheight*0.6))
+day2_shirt1 = Block(day2_top1, pos=(midwidth/1.07, midheight*0.3))
+day2_shirt2 = Block(day2_top2, pos=(midwidth/1.07, midheight*0.3))
+day2_shirt3 = Block(day2_top3, pos=(midwidth/1.07, midheight*0.3))
+day2_shirt4 = Block(day2_top4, pos=(midwidth/1.07, midheight*0.3))
 
-day3_shirt1 = Block(day3_top1, pos=(midwidth*1.1, midheight*0.6))
-day3_shirt2 = Block(day3_top2, pos=(midwidth*1.1, midheight*0.6))
-day3_shirt3 = Block(day3_top3, pos=(midwidth*1.1, midheight*0.6))
-day3_shirt4 = Block(day3_top4, pos=(midwidth*1.1, midheight*0.6))
+day3_shirt1 = Block(day3_top1, pos=(midwidth/1.07, midheight*0.3))
+day3_shirt2 = Block(day3_top2, pos=(midwidth/1.07, midheight*0.3))
+day3_shirt3 = Block(day3_top3, pos=(midwidth/1.07, midheight*0.3))
+day3_shirt4 = Block(day3_top4, pos=(midwidth/1.07, midheight*0.3))
 
-day4_shirt1 = Block(day4_top1, pos=(midwidth*1.1, midheight*0.6))
-day4_shirt2 = Block(day4_top2, pos=(midwidth*1.1, midheight*0.6))
-day4_shirt3 = Block(day4_top3, pos=(midwidth*1.1, midheight*0.6))
-day4_shirt4 = Block(day4_top4, pos=(midwidth*1.1, midheight*0.6))
+day4_shirt1 = Block(day4_top1, pos=(midwidth/1.07, midheight*0.3))
+day4_shirt2 = Block(day4_top2, pos=(midwidth/1.07, midheight*0.3))
+day4_shirt3 = Block(day4_top3, pos=(midwidth/1.07, midheight*0.3))
+day4_shirt4 = Block(day4_top4, pos=(midwidth/1.07, midheight*0.3))
 
-day1_pants1 = Block(day1_bot1, pos=(midwidth*1.1, midheight*0.9))
-day1_pants2 = Block(day1_bot2, pos=(midwidth*1.1, midheight*0.9))
-day1_pants3 = Block(day1_bot3, pos=(midwidth*1.1, midheight*0.9))
-day1_pants4 = Block(day1_bot4, pos=(midwidth*1.1, midheight*0.9))
+day1_pants1 = Block(day1_bot1, pos=(midwidth/1.07, midheight*0.45))
+day1_pants2 = Block(day1_bot2, pos=(midwidth/1.07, midheight*0.45))
+day1_pants3 = Block(day1_bot3, pos=(midwidth/1.07, midheight*0.45))
+day1_pants4 = Block(day1_bot4, pos=(midwidth/1.07, midheight*0.45))
+day2_pants1 = Block(day2_bot1, pos=(midwidth/1.07, midheight*0.45))
+day2_pants2 = Block(day2_bot2, pos=(midwidth/1.07, midheight*0.45))
+day2_pants3 = Block(day2_bot3, pos=(midwidth/1.07, midheight*0.45))
+day2_pants4 = Block(day2_bot4, pos=(midwidth/1.07, midheight*0.45))
 
-day2_pants1 = Block(day2_bot1, pos=(midwidth*1.1, midheight*0.9))
-day2_pants2 = Block(day2_bot2, pos=(midwidth*1.1, midheight*0.9))
-day2_pants3 = Block(day2_bot3, pos=(midwidth*1.1, midheight*0.9))
-day2_pants4 = Block(day2_bot4, pos=(midwidth*1.1, midheight*0.9))
+day3_pants1 = Block(day3_bot1, pos=(midwidth/1.07, midheight*0.45))
+day3_pants2 = Block(day3_bot2, pos=(midwidth/1.07, midheight*0.45))
+day3_pants3 = Block(day3_bot3, pos=(midwidth/1.07, midheight*0.45))
+day3_pants4 = Block(day3_bot4, pos=(midwidth/1.07, midheight*0.45))
 
-day3_pants1 = Block(day3_bot1, pos=(midwidth*1.1, midheight*0.9))
-day3_pants2 = Block(day3_bot2, pos=(midwidth*1.1, midheight*0.9))
-day3_pants3 = Block(day3_bot3, pos=(midwidth*1.1, midheight*0.9))
-day3_pants4 = Block(day3_bot4, pos=(midwidth*1.1, midheight*0.9))
-
-day4_pants1 = Block(day4_bot1, pos=(midwidth*1.1, midheight*0.9))
-day4_pants2 = Block(day4_bot2, pos=(midwidth*1.1, midheight*0.9))
-day4_pants3 = Block(day4_bot3, pos=(midwidth*1.1, midheight*0.9))
-day4_pants4 = Block(day4_bot4, pos=(midwidth*1.1, midheight*0.9))
+day4_pants1 = Block(day4_bot1, pos=(midwidth/1.07, midheight*0.45))
+day4_pants2 = Block(day4_bot2, pos=(midwidth/1.07, midheight*0.45))
+day4_pants3 = Block(day4_bot3, pos=(midwidth/1.07, midheight*0.45))
+day4_pants4 = Block(day4_bot4, pos=(midwidth/1.07, midheight*0.45))
 
 day1_shirts.add(day1_shirt1)
 day1_shirts.add(day1_shirt2)
@@ -226,7 +233,12 @@ global current_group_pants
 current_group_shirts = day1_shirts.sprites()
 current_group_pants = day1_pants.sprites()
 
-level_up_outfits = [(any, day1_pants3), (day2_shirt3, any), (day3_shirt4, day3_pants1), (day4_shirt3, day4_pants4)]
+level_up_outfits = [
+    (None, day1_pants3),             # any shirt, specific pants
+    (day2_shirt3, None),             # turtleneck shirt, any pants
+    (day3_shirt4, day3_pants1),      # specific shirt and pants
+    (day4_shirt3, day4_pants4)
+]
 
 #Function so when you click on the arrow, it changes to the next block in the group
 current_index_top = 0
@@ -368,7 +380,9 @@ class Text_Box:
         self.font = pygame.font.Font(None, 28)  # Smaller font size
         self.text_content = caption
         self.text_color = (255, 255, 255)  # White text
-        self.text_background_color = (255, 209, 220)  # Black box
+        self.text_background_color = (255, 209, 220)  # Pink box
+        if endScreen:
+            self.text_background_color = (37, 15, 48)  # Dark box
 
         # Render the text surface
         self.text_surface = self.font.render(
@@ -383,15 +397,51 @@ class Text_Box:
         # Center the text inside the box
         self.text_rect.center = self.box_rect.center
 
+        self.text_surface = self.font.render(self.text_content, True, self.text_color)
+
+        self.alpha = 255
+        self.fading = False
+        self.visible = True
+
         # Flag to control visibility
         self.show_text_box = True
 
     def draw(self, screen):
-        if self.show_text_box:
-            pygame.draw.rect(screen, self.text_background_color, self.box_rect, border_radius=12)
-            pygame.draw.rect(screen, (255, 255, 255), self.box_rect, 2, border_radius=12)  # Optional white border
-            screen.blit(self.text_surface, self.text_rect)
+        if not self.visible:
+            return
+        # Draw the background box using a new surface so it supports alpha
+        box_surface = pygame.Surface(self.box_rect.size, pygame.SRCALPHA)
+        box_surface.fill((*self.text_background_color, self.alpha))
+        
+        # Draw the optional border (static white)
+        pygame.draw.rect(screen, (255, 255, 255), self.box_rect, 2, border_radius=12)
+        
+        # Blit the faded box surface
+        screen.blit(box_surface, self.box_rect.topleft)
 
+        # Make a copy of the text surface to apply fade
+        text_surface = self.text_surface.copy()
+        text_surface.set_alpha(self.alpha)
+
+        screen.blit(text_surface, self.text_rect)
+
+    def start_fade(self):
+        self.fading = True
+
+    def update(self):
+        if self.fading:
+            self.alpha -= 5  # adjust fade speed here
+            if self.alpha <= 0:
+                self.alpha = 0
+                self.fading = False
+                self.visible = False
+                self.rest()
+
+    def reset(self):
+        self.alpha = 255
+        self.visible = True
+        self.fading = False
+    
     def dismiss(self):
         self.show_text_box = False
     
@@ -399,9 +449,11 @@ class Text_Box:
         return self.box_rect.collidepoint(mouse_pos)
 
 #Creates elements
-bodyTop = pygame.transform.scale(current_group_shirts[current_index_top].imagefile,(midwidth*.48,midheight/1.4))
-bodyBot = pygame.transform.scale(current_group_pants[current_index_bottom].imagefile, (midwidth*.48,midheight/1.4))
-text_box = Text_Box((midwidth*0.8,midheight*1.6), "OOh la la, looks like red is in!" , (500,100))
+bodyTop = pygame.transform.scale(current_group_shirts[current_index_top].imagefile, (screen.get_width()*.9, screen.get_height()*1.05))
+bodyBot = pygame.transform.scale(current_group_pants[current_index_bottom].imagefile, (screen.get_width()*.9, screen.get_height()*1.05))
+#text_box = Text_Box((midwidth*0.8,midheight*1.6), "OOh la la, looks like red is in!" , (500,100))
+text_refresh = Text_Box( (midwidth,midheight), "REFRESH" , (200,100) )
+text_box = Text_Box((midwidth*0.8,midheight*1.6), "OOh la la, looks like festive clothes are in!" , (500,100))
 text_box3 = Text_Box((midwidth*0.8,midheight*1.6), "Everyone's loving pretty punk core recently." , (500,100))
 text_box4 = Text_Box((midwidth*0.8,midheight*1.6), "Feral Whisker Anarchy Grunge. It's the only way." , (500,100))
 text_box2 = Text_Box((midwidth,midheight), "this shirt is OLD!" , (200,100))
@@ -415,6 +467,14 @@ arrowBotLeft = Arrow(arrow, buttonWidth-50, buttonHeight-50, 0, pos=(midwidth*0.
 bg = Background(day1, av1)
 bg.draw(screen)
 text_box.draw(screen)
+last_outfit_count = 0
+
+def outfit_matches(shirt, pants):
+    for good_shirt, good_pants in level_up_outfits:
+        if (good_shirt is None or good_shirt == shirt) and \
+        (good_pants is None or good_pants == pants):
+            return True
+    return False
 
 while running:
     # poll for events
@@ -431,26 +491,31 @@ while running:
                         closet = not closet
                         bg.day +=1
                         day.day +=1
-                        outfit = (current_group_shirts[current_index_top], current_group_pants[current_index_bottom])
+                        outfit = [current_group_shirts[current_index_top], current_group_pants[current_index_bottom]]
                         match bg.day:
                             case 2:
                                 bg.setBackground(day1_good, av1)
                             case 3:
-                                if outfit in level_up_outfits :
+                                if corTop and corBot and topVisible and botVisible :
                                     bg.setBackground(day2_good,av2)
                                 else:
                                     bg.setBackground(day2_bad, av2)
                                     bg.day-=1
                                     day.day -=1
                             case 4:
-                                if outfit in level_up_outfits :
+                                if corTop and corBot and topVisible and botVisible :
                                     bg.setBackground(day3_good,av3)
-                                    bg.day-=1
-                                    day.day -=1
                                 else:
                                     bg.setBackground(day3_bad, av3)
-                            case 5:
+                                    bg.day-=1
+                                    day.day -=1
+                            case _:
                                 bg.setBackground(day4_bad, av4)
+                                last_outfit_count+=1
+                                if(last_outfit_count==7): 
+                                    endScreen = True
+                                    text_refresh = Text_Box( (midwidth,midheight), "REFRESH" , (200,100) )
+                                    
                         button1.updateImage() #changes the image depending on where we are
                         day.pick_group()
                     else:
@@ -459,6 +524,8 @@ while running:
                         button1.updateImage()
                         topVisible = False
                         botVisible = False
+                        corTop = False
+                        corBot = False
                         match bg.day:
                             case 1:
                                 bg.setBackground(day1, av1)
@@ -475,6 +542,8 @@ while running:
                 if text_box2.is_clicked(event.pos):
                     text_box2.dismiss()
                     text_box2.draw(screen)
+                if text_refresh.is_clicked(event.pos):
+                    text_refresh.start_fade()
                 if arrowTopRight.is_clicked(event.pos):
                     show_next_block_top(current_group_shirts)
                 if arrowTopLeft.is_clicked(event.pos):
@@ -484,45 +553,47 @@ while running:
                 if arrowBotRight.is_clicked(event.pos):
                     show_next_block_bottom(current_group_pants)
                 if current_group_pants[current_index_bottom].is_clicked(event.pos):
-                    bodyBot = pygame.transform.scale(current_group_pants[current_index_bottom].imagefile, (midwidth*.48,midheight/1.4))
+                    bodyBot = pygame.transform.scale(current_group_pants[current_index_bottom].imagefile, (screen.get_width()*.9, screen.get_height()*1.05))
                     botVisible = True
-                    print("I CLICKED THE PANTS")
-                shirt = current_group_shirts[current_index_top]
+                    match (bg.day, current_index_bottom):
+                        case (3, 0):
+                            corBot = True
+                        case(1,_):
+                            corBot = True
+                        case(2, _): 
+                            corBot = True
+                        case (_,_):
+                            corBot = False
                 if current_group_shirts[current_index_top].is_clicked(event.pos):
-                    bodyTop = pygame.transform.scale(current_group_shirts[current_index_top].imagefile,(midwidth*.48,midheight/1.4))
+                    bodyTop = pygame.transform.scale(current_group_shirts[current_index_top].imagefile,(screen.get_width()*.9, screen.get_height()*1.05))
                     topVisible = True
-                '''
-                    match bg.day:
-                        case 2:
-                            if shirt.visible and shirt.is_clicked(event.pos):
-                                if shirt in day1_shirts.sprites():
-                                    show_box2 = True
-                                else:
-                                    print("I CLICKED THE SHIRT")
-                        case 3:
-                            if shirt.visible and shirt.is_clicked(event.pos):
-                                if shirt in day2_shirts.sprites():
-                                    print("This is old clothes!")
-                                else:
-                                    print("I CLICKED THE SHIRT")
-                        case 4:
-                            if shirt.visible and shirt.is_clicked(event.pos):
-                                if shirt in day3_shirts.sprites():
-                                    print("This is old clothes!")
-                                else:
-                                    print("I CLICKED THE SHIRT")
-                '''
+                    corTop = True
+                    match (bg.day, current_index_top):
+                        case (3, 3):
+                            corTop = True
+                        case(1,_):
+                            corTop = True
+                        case(2,2): 
+                            corTop = True
+                        case (_,_):
+                            corTop = False
                
+    if(endScreen):
+        screen.fill(pygame.Color(37, 15, 48))
+        text_refresh.draw(screen)
+        text_refresh.update()
+        # Draw (if still visible)
+        text_refresh.draw(screen)
     # fill the screen with a color to wipe away anything from last frame
-    if closet:
+    elif closet:
         #screen.fill(pygame.Color(255, 217, 228))
          #put the background to the variable background2
         #day1_pants.draw(screen)
         bg.draw(screen)
         if botVisible:
-            screen.blit(bodyBot,(midwidth/2.42,midheight/0.95))
+            screen.blit(bodyBot,(-1 * screen_width/15, screen_height/25))
         if topVisible:
-            screen.blit(bodyTop,(midwidth/2.42,midheight/1.6))
+            screen.blit(bodyTop,(-1 * screen_width/15, screen_height/25))
         box.draw(screen)
         arrowTopRight.draw()
         arrowTopLeft.draw()
@@ -532,24 +603,22 @@ while running:
             block.draw(screen)
         for block in current_group_shirts:
             block.draw(screen)
-        if bg.day is 2:
+        if bg.day == 2:
             text_box.draw(screen)
-        elif bg.day is 3:
+        elif bg.day == 3:
             text_box3.draw(screen)
-        elif bg.day is 4:
+        elif bg.day == 4:
             text_box4.draw(screen)
     else:
         screen.fill(pygame.Color(222, 242, 255))
         bg.draw(screen)
         if botVisible:
-            screen.blit(bodyBot,(midwidth/2.42,midheight/0.95))
+            screen.blit(bodyBot,(-1 * screen_width/15, screen_height/25))
         if topVisible:
-            screen.blit(bodyTop, (midwidth/2.42,midheight/1.6))
+            screen.blit(bodyTop, (-1 * screen_width/15, screen_height/25))
             
     button1.draw()
-
-
-
+    
 
     
     ##pygame.draw.circle(screen, "red", player_pos, 40)
