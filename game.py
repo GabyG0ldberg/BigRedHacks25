@@ -8,7 +8,8 @@ screen_width = screen_info.current_w
 screen_height = screen_info.current_h
 screen = pygame.display.set_mode((int(screen_width* 0.75), int((screen_width*.75)* 3 / 4)))
 clock = pygame.time.Clock()
-pygame.display.set_caption("BORFED UP FITS")
+pygame.display.set_caption("Fastest Fashions!")
+pygame.display.set_icon(pygame.image.load("images/icon.png"))
 running = True
 dt = 0
 #elements to track where we are in the game
@@ -21,6 +22,7 @@ topVisible = False
 botVisible = False
 corTop = False
 corBot = False
+start = True
 
 #initalizing images
 arrow = pygame.image.load("images/arrow-button.png").convert_alpha()
@@ -34,6 +36,7 @@ av1 = pygame.image.load("images/av1.PNG").convert_alpha()
 av2 = pygame.image.load("images/av2.PNG").convert_alpha()
 av3 = pygame.image.load("images/av3.PNG").convert_alpha()
 av4 = pygame.image.load("images/av4.PNG").convert_alpha()
+transparent = pygame.image.load("images/transparent.PNG").convert_alpha()
 day1_bad = pygame.image.load("images/day1_bad.png").convert()
 day2_bad = pygame.image.load("images/day2_bad.png").convert()
 day3_bad = pygame.image.load("images/day3_bad.png").convert()
@@ -84,7 +87,7 @@ day4_bot4 = pygame.image.load("images/clothing/bottom-16.png").convert_alpha() #
 class Background:
     def __init__(self, file,fileav):
         self.setBackground(file, fileav)
-        self.day = 1
+        self.day = 0
     def setBackground(self, filebg, fileav):
         self.background = filebg #image
         self.background = pygame.transform.scale(self.background,(int(screen_width* 0.75), int((screen_width*.75)* 3 / 4)))
@@ -237,22 +240,9 @@ global current_group_pants
 current_group_shirts = day1_shirts.sprites()
 current_group_pants = day1_pants.sprites()
 
-level_up_outfits = [
-    (None, day1_pants3),             # any shirt, specific pants
-    (day2_shirt3, None),             # turtleneck shirt, any pants
-    (day3_shirt4, day3_pants1),      # specific shirt and pants
-    (day4_shirt3, day4_pants4)
-]
-
 #Function so when you click on the arrow, it changes to the next block in the group
 current_index_top = 0
 current_index_bottom = 0
-'''
-current_group_shirts = day1_shirts.sprites()
-current_group_pants = day1_pants.sprites()
-current_group_shirts[current_index].visible = True
-current_group_pants[current_index].visible = True
-'''
 
 class Day:
     def __init__(self):
@@ -326,17 +316,16 @@ class Button:
         self.scaled_image = pygame.transform.scale(image1, (self.rectangle.width, self.rectangle.height)) #scales the image to the size of the button
         self.image1 = image1
         self.image2 = image2
-    
+
     def updateImage(self):
         if closet:
             self.scaled_image = pygame.transform.scale(self.image1, (self.rectangle.width, self.rectangle.height))
         else:
             self.scaled_image = pygame.transform.scale(self.image2, (self.rectangle.width, self.rectangle.height))
-            
-    def draw(self):
-        pygame.draw.rect(screen, "green", self.rectangle)
-        screen.blit(self.scaled_image, self.rectangle)
 
+    def draw(self):
+        image_copy = self.scaled_image.copy()
+        screen.blit(image_copy, self.rectangle)
     
     def is_clicked(self, mouse_pos):
         return self.rectangle.collidepoint(mouse_pos)
@@ -405,7 +394,7 @@ class Text_Box:
 
         self.alpha = 255
         self.fading = False
-        self.visible = True
+        self.visible = False
 
         # Flag to control visibility
         self.show_text_box = True
@@ -417,8 +406,6 @@ class Text_Box:
         box_surface = pygame.Surface(self.box_rect.size, pygame.SRCALPHA)
         box_surface.fill((*self.text_background_color, self.alpha))
         
-        # Draw the optional border (static white)
-        pygame.draw.rect(screen, (255, 255, 255), self.box_rect, 2, border_radius=12)
         
         # Blit the faded box surface
         screen.blit(box_surface, self.box_rect.topleft)
@@ -430,7 +417,8 @@ class Text_Box:
         screen.blit(text_surface, self.text_rect)
 
     def start_fade(self):
-        self.fading = True
+        if self.visible:
+            self.fading = True
 
     def update(self):
         if self.fading:
@@ -439,8 +427,9 @@ class Text_Box:
                 self.alpha = 0
                 self.fading = False
                 self.visible = False
-                self.reset()
-
+                if endScreen:
+                    self.reset()
+                
     def reset(self):
         self.alpha = 255
         self.visible = True
@@ -451,7 +440,7 @@ class Text_Box:
         self.visible = False
     
     def is_clicked(self, mouse_pos):
-        return self.box_rect.collidepoint(mouse_pos)
+        return self.box_rect.collidepoint(mouse_pos) and self.visible
 
 #Creates elements
 bodyTop = pygame.transform.scale(current_group_shirts[current_index_top].imagefile, (screen.get_width()*.9, screen.get_height()*1.05))
@@ -459,27 +448,18 @@ bodyBot = pygame.transform.scale(current_group_pants[current_index_bottom].image
 #text_box = Text_Box((midwidth*0.8,midheight*1.6), "OOh la la, looks like red is in!" , (500,100))
 text_refresh = Text_Box( (midwidth,midheight), "REFRESH" , (200,100) )
 text_box = Text_Box((midwidth*0.8,midheight*1.6), "OOh la la, looks like festive clothes are in!" , (500,100))
-text_box3 = Text_Box((midwidth*0.8,midheight*1.6), "Everyone's loving pretty punk core recently." , (500,100))
-text_box4 = Text_Box((midwidth*0.8,midheight*1.6), "Feral Whisker Anarchy Grunge. It's the only way." , (500,100))
-text_box2 = Text_Box((midwidth,midheight), "this shirt is OLD!" , (200,100))
-show_box2 = False
+text_box3 = Text_Box((midwidth*0.8,midheight*1.6), "Everyone's loving monochromatic zoo core recently..." , (500,100))
+text_box4 = Text_Box((midwidth*0.8,midheight*1.6), "Feral Whisker Anarchy Grunge. It's the only way to stay relevant." , (600,100))
 box = Transparent_Box((midwidth, midheight*0.45), (300,400), (128, 128, 128))
 button1 = Button(screen.get_height() - buttonHeight - (screen.get_width()/90),camera, closet )
 arrowTopRight = Arrow(arrow, buttonWidth-50, buttonHeight-50, 1, pos=(midwidth*1.34, midheight*0.65))
 arrowTopLeft = Arrow(arrow, buttonWidth-50, buttonHeight-50, 0, pos=(midwidth*0.95, midheight*0.65))
 arrowBotRight = Arrow(arrow, buttonWidth-50, buttonHeight-50, 1, pos=(midwidth*1.34, midheight * 0.95))
 arrowBotLeft = Arrow(arrow, buttonWidth-50, buttonHeight-50, 0, pos=(midwidth*0.95, midheight * 0.95))
-bg = Background(day1, av1)
+bg = Background(day4, transparent)
 bg.draw(screen)
 text_box.draw(screen)
 last_outfit_count = 0
-
-def outfit_matches(shirt, pants):
-    for good_shirt, good_pants in level_up_outfits:
-        if (good_shirt is None or good_shirt == shirt) and \
-        (good_pants is None or good_pants == pants):
-            return True
-    return False
 
 while running:
     # poll for events
@@ -536,23 +516,22 @@ while running:
                                 bg.setBackground(day1, av1)
                             case 2:
                                 bg.setBackground(day2, av2)
+                                text_box.visible = True
                             case 3:
                                 bg.setBackground(day3, av3)
+                                text_box3.visible = True
+                            case 4:
+                                bg.setBackground(day4, av4)
+                                text_box4.visible = True
                             case _:
                                 bg.setBackground(day4, av4)
-                        
+                                text_refresh.visible = True                                
                 if text_box.is_clicked(event.pos):
-                    text_box.dismiss()
-                    text_box.draw(screen)
+                    text_box.start_fade()
                 if text_box3.is_clicked(event.pos):
-                    text_box3.dismiss()
-                    text_box3.draw(screen)
+                    text_box3.start_fade()
                 if text_box4.is_clicked(event.pos):
-                    text_box4.dismiss()
-                    text_box4.draw(screen)
-                if text_box2.is_clicked(event.pos):
-                    text_box2.dismiss()
-                    text_box2.draw(screen)
+                    text_box4.start_fade()
                 if text_refresh.is_clicked(event.pos):
                     text_refresh.start_fade()
                 if arrowTopRight.is_clicked(event.pos):
@@ -588,6 +567,10 @@ while running:
                             corTop = True
                         case (_,_):
                             corTop = False
+                if start:
+                    start = not start
+                    bg.day+=1
+                    bg.setBackground(day1,av1)
                
     if(endScreen):
         screen.fill(pygame.Color(37, 15, 48))
@@ -596,6 +579,8 @@ while running:
         # Draw (if still visible)
         text_refresh.draw(screen)
     # fill the screen with a color to wipe away anything from last frame
+    elif start:
+        bg.draw(screen)
     elif closet:
         #screen.fill(pygame.Color(255, 217, 228))
          #put the background to the variable background2
@@ -616,10 +601,13 @@ while running:
             block.draw(screen)
         if bg.day == 2:
             text_box.draw(screen)
+            text_box.update()
         elif bg.day == 3:
             text_box3.draw(screen)
+            text_box3.update()
         elif bg.day == 4:
             text_box4.draw(screen)
+            text_box4.update()
         button1.draw()
     else:
         screen.fill(pygame.Color(222, 242, 255))
@@ -629,12 +617,6 @@ while running:
         if topVisible:
             screen.blit(bodyTop, (-1 * screen_width/15, screen_height/25))
         button1.draw()
-
-
-    
-    ##pygame.draw.circle(screen, "red", player_pos, 40)
-
-    keys = pygame.key.get_pressed()
     # flip() the display to put your work on screen
     pygame.display.flip()
 
