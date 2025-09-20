@@ -1,4 +1,4 @@
-# Example file showing a circle moving on screen
+# code for the display and running the game
 import pygame
 import os
 
@@ -11,7 +11,10 @@ screen = pygame.display.set_mode((int(screen_width* 0.75), int((screen_width*.75
 clock = pygame.time.Clock()
 running = True
 dt = 0
+#whether or not we are in the closet
 closet = True
+
+#initalizing images
 arrow = pygame.image.load("images/closet.PNG").convert()
 mirror = pygame.image.load("images/camera.PNG").convert()
 
@@ -70,9 +73,10 @@ buttonWidth = screen.get_width()/8
 buttonHeight = buttonWidth
 class Button:
     def __init__(self, top, image1,image2):
+        #initalize the button with top y coordinate 'top' and two images for each state (depending if we are in the closet or not)
         self.top = top
-        self.rectangle = pygame.Rect(screen.get_width() -buttonWidth - (screen.get_width()/90), self.top, buttonWidth, buttonHeight)
-        self.scaled_image = pygame.transform.scale(image1, (self.rectangle.width, self.rectangle.height))
+        self.rectangle = pygame.Rect(screen.get_width() -buttonWidth - (screen.get_width()/90), self.top, buttonWidth, buttonHeight) #creates a rectangle base for the button
+        self.scaled_image = pygame.transform.scale(image1, (self.rectangle.width, self.rectangle.height)) #scales the image to the size of the button
         self.image1 = image1
         self.image2 = image2
     
@@ -103,12 +107,13 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
+                #if the closet/camera button is clicked, we change the state of the game to the opposite
                 if button1.rectangle.collidepoint(event.pos):
                     print("Button was clicked!")
                     if closet: 
                         arrow = pygame.image.load("images/arrow-button.png").convert()
                         closet = not closet
-                        button1.updateImage()
+                        button1.updateImage() #changes the image depending on where we are
                     else:
                         arrow = pygame.image.load("images/arrow-button.png").convert()
                         closet = not closet
