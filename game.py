@@ -8,7 +8,7 @@ screen_width = screen_info.current_w
 screen_height = screen_info.current_h
 screen = pygame.display.set_mode((int(screen_width* 0.75), int((screen_width*.75)* 3 / 4)))
 clock = pygame.time.Clock()
-pygame.display.set_caption("FASTEST FASHION")
+pygame.display.set_caption("BORFED UP FITS")
 running = True
 dt = 0
 #elements to track where we are in the game
@@ -117,16 +117,16 @@ class Block(pygame.sprite.Sprite):
             self.rect.topleft = pos
 
         # Shrink the clickable area (bounding box)
-        shrink_by = 0.7  # Use 70% of the original size
+        shrink_by = 0.3 # Use 70% of the original size
         self.hitbox = self.rect.inflate(-self.rect.width * (1 - shrink_by),
                                         -self.rect.height * (1 - shrink_by))
-    
+        
     def draw(self, surface):
         if self.visible:
             surface.blit(self.image, self.rect)
     
     def is_clicked(self, mouse_pos):
-        return self.rect.collidepoint(mouse_pos)
+        return self.hitbox.collidepoint(mouse_pos)
 
 
 
@@ -164,24 +164,24 @@ day4_shirt2 = Block(day4_top2, pos=(midwidth/1.07, midheight*0.3))
 day4_shirt3 = Block(day4_top3, pos=(midwidth/1.07, midheight*0.3))
 day4_shirt4 = Block(day4_top4, pos=(midwidth/1.07, midheight*0.3))
 
-day1_pants1 = Block(day1_bot1, pos=(midwidth/1.07, midheight*0.45))
-day1_pants2 = Block(day1_bot2, pos=(midwidth/1.07, midheight*0.45))
-day1_pants3 = Block(day1_bot3, pos=(midwidth/1.07, midheight*0.45))
-day1_pants4 = Block(day1_bot4, pos=(midwidth/1.07, midheight*0.45))
-day2_pants1 = Block(day2_bot1, pos=(midwidth/1.07, midheight*0.45))
-day2_pants2 = Block(day2_bot2, pos=(midwidth/1.07, midheight*0.45))
-day2_pants3 = Block(day2_bot3, pos=(midwidth/1.07, midheight*0.45))
-day2_pants4 = Block(day2_bot4, pos=(midwidth/1.07, midheight*0.45))
+day1_pants1 = Block(day1_bot1, pos=(midwidth/1.07, midheight*0.50))
+day1_pants2 = Block(day1_bot2, pos=(midwidth/1.07, midheight*0.50))
+day1_pants3 = Block(day1_bot3, pos=(midwidth/1.07, midheight*0.50))
+day1_pants4 = Block(day1_bot4, pos=(midwidth/1.07, midheight*0.50))
+day2_pants1 = Block(day2_bot1, pos=(midwidth/1.07, midheight*0.50))
+day2_pants2 = Block(day2_bot2, pos=(midwidth/1.07, midheight*0.50))
+day2_pants3 = Block(day2_bot3, pos=(midwidth/1.07, midheight*0.50))
+day2_pants4 = Block(day2_bot4, pos=(midwidth/1.07, midheight*0.50))
 
-day3_pants1 = Block(day3_bot1, pos=(midwidth/1.07, midheight*0.45))
-day3_pants2 = Block(day3_bot2, pos=(midwidth/1.07, midheight*0.45))
-day3_pants3 = Block(day3_bot3, pos=(midwidth/1.07, midheight*0.45))
-day3_pants4 = Block(day3_bot4, pos=(midwidth/1.07, midheight*0.45))
+day3_pants1 = Block(day3_bot1, pos=(midwidth/1.07, midheight*0.50))
+day3_pants2 = Block(day3_bot2, pos=(midwidth/1.07, midheight*0.50))
+day3_pants3 = Block(day3_bot3, pos=(midwidth/1.07, midheight*0.50))
+day3_pants4 = Block(day3_bot4, pos=(midwidth/1.07, midheight*0.50))
 
-day4_pants1 = Block(day4_bot1, pos=(midwidth/1.07, midheight*0.45))
-day4_pants2 = Block(day4_bot2, pos=(midwidth/1.07, midheight*0.45))
-day4_pants3 = Block(day4_bot3, pos=(midwidth/1.07, midheight*0.45))
-day4_pants4 = Block(day4_bot4, pos=(midwidth/1.07, midheight*0.45))
+day4_pants1 = Block(day4_bot1, pos=(midwidth/1.07, midheight*0.50))
+day4_pants2 = Block(day4_bot2, pos=(midwidth/1.07, midheight*0.50))
+day4_pants3 = Block(day4_bot3, pos=(midwidth/1.07, midheight*0.50))
+day4_pants4 = Block(day4_bot4, pos=(midwidth/1.07, midheight*0.50))
 
 day1_shirts.add(day1_shirt1)
 day1_shirts.add(day1_shirt2)
@@ -224,6 +224,10 @@ day4_pants.add(day4_pants3)
 day4_pants.add(day4_pants4)
 
 dayspants = [day1_pants,day2_pants,day3_pants,day4_pants]
+
+for pantsGroup in dayspants:
+    for pants in pantsGroup:
+        pants.hitbox.top = midheight
 daystops = [day1_shirts,day2_shirts,day3_shirts,day4_shirts]
 
 #Makes a list of all blocks. blocks is an array
@@ -435,7 +439,7 @@ class Text_Box:
                 self.alpha = 0
                 self.fading = False
                 self.visible = False
-                self.rest()
+                self.reset()
 
     def reset(self):
         self.alpha = 255
@@ -444,6 +448,7 @@ class Text_Box:
     
     def dismiss(self):
         self.show_text_box = False
+        self.visible = False
     
     def is_clicked(self, mouse_pos):
         return self.box_rect.collidepoint(mouse_pos)
@@ -539,6 +544,12 @@ while running:
                 if text_box.is_clicked(event.pos):
                     text_box.dismiss()
                     text_box.draw(screen)
+                if text_box3.is_clicked(event.pos):
+                    text_box3.dismiss()
+                    text_box3.draw(screen)
+                if text_box4.is_clicked(event.pos):
+                    text_box4.dismiss()
+                    text_box4.draw(screen)
                 if text_box2.is_clicked(event.pos):
                     text_box2.dismiss()
                     text_box2.draw(screen)
@@ -609,6 +620,7 @@ while running:
             text_box3.draw(screen)
         elif bg.day == 4:
             text_box4.draw(screen)
+        button1.draw()
     else:
         screen.fill(pygame.Color(222, 242, 255))
         bg.draw(screen)
@@ -616,25 +628,13 @@ while running:
             screen.blit(bodyBot,(-1 * screen_width/15, screen_height/25))
         if topVisible:
             screen.blit(bodyTop, (-1 * screen_width/15, screen_height/25))
-            
-    button1.draw()
-    
+        button1.draw()
+
 
     
     ##pygame.draw.circle(screen, "red", player_pos, 40)
 
     keys = pygame.key.get_pressed()
-    '''
-    if keys[pygame.K_w] or keys[pygame.K_UP]:
-        player_pos.y -= 300 * dt
-    if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-        player_pos.y += 300 * dt
-    if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-        player_pos.x -= 300 * dt
-    if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-        player_pos.x += 300 * dt
-    '''
-
     # flip() the display to put your work on screen
     pygame.display.flip()
 
