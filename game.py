@@ -14,33 +14,68 @@ dt = 0
 #whether or not we are in the closet
 closet = True
 
+#Mid screen height
+midheight = screen_height//2
+midwidth = screen_width//2
+
 #initalizing images
-arrow = pygame.image.load("images/closet.PNG").convert()
-mirror = pygame.image.load("images/camera.PNG").convert()
+arrow = pygame.image.load("images/arrow-button.png").convert()
+closet = pygame.image.load("images/closet.PNG").convert()
+camera = pygame.image.load("images/camera.PNG").convert()
+day1 = pygame.image.load("images/day1.jpg").convert()
+
+# Load and scale background
+background = day1
+background = pygame.transform.scale(background, (screen_width, screen_height))
 
 class Block(pygame.sprite.Sprite):
-    def __init__(self, image_path, x=0, y=0):
-        pygame.sprite.Sprite.__init__(self)
-        
-        # Load the image from file
+    def __init__(self, image_path, size=(128, 128), pos=None):
+        super().__init__()
+
+        self.visible = False
+
         try:
-            self.image = pygame.image.load(image_path)
+            original_image = pygame.image.load(image_path).convert_alpha()
+            self.image = pygame.transform.scale(original_image, size)
         except pygame.error as e:
             print(f"Could not load image {image_path}: {e}")
-            # Create a fallback colored rectangle
-            self.image = pygame.Surface([64, 64])
+            self.image = pygame.Surface(size)
             self.image.fill((255, 0, 0))  # Red fallback
-        
-        # Get the rectangle for positioning
+
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        
+        if pos is None:
+            self.rect = (midwidth, midheight)
+        else: 
+            self.rect.topleft = pos
+    
+    def draw(self, surface):
+        if self.visible:
+            surface.blit(self.image, self.rect)
+
 
 all_closet_sprites = pygame.sprite.Group()
 all_media_sprites = pygame.sprite.Group()
 
 # Usage
-block = Block("images/mirror-button.jpg", 100, 150)
+block = Block("images/day1.jpg", pos=(midwidth*1.1, midheight*0.6))
+block2 = Block("images/mirror-button.jpg", pos=(midwidth*1.1, midheight*0.6))
+all_closet_sprites.add(block)
+all_closet_sprites.add(block2)
+
+blocks = all_closet_sprites.sprites()
+
+current_index = 0
+blocks[current_index].visible = True
+
+def show_next_block():
+    global current_index
+    # Hide current block
+    blocks[current_index].visible = False
+    # Increment index and wrap around
+    current_index = (current_index + 1) % len(blocks)
+    # Show next block
+    blocks[current_index].visible = True
 
 #Shirts
 #shirt1 = Block("images/shirt1.jpg", 100, 150)
@@ -95,7 +130,35 @@ class Button:
         return self.rectangle.collidepoint(mouse_pos)
 
 
-button1 = Button(screen.get_height() - buttonHeight - (screen.get_width()/90),mirror, arrow )
+class Arrow: 
+    def __init__(self, image, width,height, pos = None):
+        self.image = image  # image should be a pygame.Surface here
+        self.scaled_image = pygame.transform.scale(self.image, (width, height))
+        self.rectangle = self.scaled_image.get_rect()
+        
+        if pos is None:
+            self.rectangle.center = (midwidth, midheight)
+        else: 
+            self.rectangle.topleft = pos
+
+    def draw(self):
+        screen.blit(self.scaled_image, self.rectangle)
+
+    def is_clicked(self, mouse_pos):
+        return self.rectangle.collidepoint(mouse_pos)
+
+class Solid_Box:
+    def __init__(self, pos, size, color):
+        self.rect = pygame.Rect(pos[0], pos[1], size[0], size[1])
+        self.color = color
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, self.color, self.rect)
+
+
+box = Solid_Box((midwidth, midheight*0.45), (300,400), "grey")
+button1 = Button(screen.get_height() - buttonHeight - (screen.get_width()/90),camera, closet )
+arrow_button = Arrow(arrow, buttonWidth-50, buttonHeight-50, pos=(midwidth*1.3, midheight*0.6))
 
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
@@ -118,18 +181,23 @@ while running:
                         arrow = pygame.image.load("images/arrow-button.png").convert()
                         closet = not closet
                         button1.updateImage()
-                if button1.is_clicked(event.pos):
-                    print("Button was clocked")
+                if arrow_button.is_clicked(event.pos):
+                    show_next_block ()
+                
 
     # fill the screen with a color to wipe away anything from last frame
-    
     if closet:
-        screen.fill(pygame.Color(255, 217, 228))
-        #all_closet_sprites.draw(screen)
+        #screen.fill(pygame.Color(255, 217, 228))
+        screen.blit(background, (0, 0))
+        all_closet_sprites.draw(screen)
     else:
         screen.fill(pygame.Color(222, 242, 255))
 
+    box.draw(screen)
     button1.draw()
+    arrow_button.draw()
+    for block in blocks:
+        block.draw(screen)
     ##pygame.draw.circle(screen, "red", player_pos, 40)
 
     keys = pygame.key.get_pressed()
