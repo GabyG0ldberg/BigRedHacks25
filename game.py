@@ -8,16 +8,16 @@ screen_width = screen_info.current_w
 screen_height = screen_info.current_h
 screen = pygame.display.set_mode((int(screen_width* 0.75), int((screen_width*.75)* 3 / 4)))
 clock = pygame.time.Clock()
-pygame.display.set_caption("HACKATHON GAME")
+pygame.display.set_caption("FASTEST FASHION")
 running = True
 dt = 0
 #elements to track where we are in the game
 closet = True
-day = 1
-
 #Mid screen height
 midheight = screen_height//2
 midwidth = screen_width//2
+topVisible = False
+botVisible = False
 
 #initalizing images
 arrow = pygame.image.load("images/arrow-button.png").convert_alpha()
@@ -31,6 +31,15 @@ av1 = pygame.image.load("images/av1.PNG").convert_alpha()
 av2 = pygame.image.load("images/av2.PNG").convert_alpha()
 av3 = pygame.image.load("images/av3.PNG").convert_alpha()
 av4 = pygame.image.load("images/av4.PNG").convert_alpha()
+day1_bad = pygame.image.load("images/day1_bad.png").convert()
+day2_bad = pygame.image.load("images/day2_bad.png").convert()
+day3_bad = pygame.image.load("images/day3_bad.png").convert()
+day4_bad= pygame.image.load("images/day4_bad.png").convert()
+day1_good = pygame.image.load("images/day1_good.png").convert()
+day2_good = pygame.image.load("images/day2_good.png").convert()
+day3_good = pygame.image.load("images/day3_good.png").convert()
+day4_good = pygame.image.load("images/day4_good.png").convert()
+#gif = pygame.image.load("images/spongebob-squarepants-to-do-list.gif").convert()
 #day5 = pygame.image.load("images/day5.jpg").convert()
 
 
@@ -46,62 +55,54 @@ day1_bot3 = pygame.image.load("images/clothing/bottom-3.png").convert_alpha() # 
 day1_bot4 = pygame.image.load("images/clothing/bottom-4.png").convert_alpha()
 day2_top1 = pygame.image.load("images/clothing/top-8.png").convert_alpha()
 day2_top2 = pygame.image.load("images/clothing/top-4.png").convert_alpha()
-day2_top3 = pygame.image.load("images/clothing/top-5.png").convert_alpha()
-day2_top4 = pygame.image.load("images/clothing/top-10.png").convert_alpha()
-day2_bot1 = pygame.image.load("images/clothing/bottom-5.png").convert_alpha() # People are feeling festive today
+day2_top3 = pygame.image.load("images/clothing/top-5.png").convert_alpha() # People are feeling festive today
+day2_top4 = pygame.image.load("images/clothing/top-10.png").convert_alpha() 
+day2_bot1 = pygame.image.load("images/clothing/bottom-5.png").convert_alpha() 
 day2_bot2 = pygame.image.load("images/clothing/bottom-6.png").convert_alpha()
 day2_bot3 = pygame.image.load("images/clothing/bottom-7.png").convert_alpha()
 day2_bot4 = pygame.image.load("images/clothing/bottom-10.png").convert_alpha()
 day3_top1 = pygame.image.load("images/clothing/top-6.png").convert_alpha()
 day3_top2 = pygame.image.load("images/clothing/top-11.png").convert_alpha()
-day3_top3 = pygame.image.load("images/clothing/top-12.png").convert_alpha() # Everyone's loving rog pretty punk zoo core 
-day3_top4 = pygame.image.load("images/clothing/top-13.png").convert_alpha()
-day3_bot1 = pygame.image.load("images/clothing/bottom-8.png").convert_alpha()
+day3_top3 = pygame.image.load("images/clothing/top-12.png").convert_alpha() 
+day3_top4 = pygame.image.load("images/clothing/top-13.png").convert_alpha() # Everyone's loving frog pretty punk zoo core 
+day3_bot1 = pygame.image.load("images/clothing/bottom-8.png").convert_alpha() # Everyone's loving frog pretty punk zoo core  
 day3_bot2 = pygame.image.load("images/clothing/bottom-12.png").convert_alpha()
 day3_bot3 = pygame.image.load("images/clothing/bottom-14.png").convert_alpha()
 day3_bot4 = pygame.image.load("images/clothing/bottom-15.png").convert_alpha()
 day4_top1 = pygame.image.load("images/clothing/top-9.png").convert_alpha()
 day4_top2 = pygame.image.load("images/clothing/top-14.png").convert_alpha()
-day4_top3 = pygame.image.load("images/clothing/top-15.png").convert_alpha() # Feral house cat whisker anarchy grunge
+day4_top3 = pygame.image.load("images/clothing/top-15.png").convert_alpha() # Feral whisker anarchy grunge
 day4_top4 = pygame.image.load("images/clothing/top-16.png").convert_alpha()
 day4_bot1 = pygame.image.load("images/clothing/bottom-13.png").convert_alpha()
 day4_bot2 = pygame.image.load("images/clothing/bottom-11.png").convert_alpha()
 day4_bot3 = pygame.image.load("images/clothing/bottom-9.png").convert_alpha()
-day4_bot4 = pygame.image.load("images/clothing/bottom-16.png").convert_alpha()
+day4_bot4 = pygame.image.load("images/clothing/bottom-16.png").convert_alpha() # Feral whisker anarchy grunge
 
 class Background:
-    def __init__(self, file):
-        self.setBackground(file)
+    def __init__(self, file,fileav):
+        self.setBackground(file, fileav)
         self.day = 1
-    #TODO: change the background based on which part of the game we are at
-    def setBackground(self, file):
-        self.background = file #image
-        self.background = pygame.transform.scale(self.background, (screen_width, screen_height))
+    def setBackground(self, filebg, fileav):
+        self.background = filebg #image
+        self.background = pygame.transform.scale(self.background,(int(screen_width* 0.75), int((screen_width*.75)* 3 / 4)))
+        self.avatar = fileav
+        self.avatar = pygame.transform.scale(self.avatar, (screen.get_width(), screen.get_height()*1.05))
 
     def draw(self, screen):
         screen.blit(self.background, (0, 0))
-
-'''
-class Day:
-    def __init__(self):
-    #set background
-        self.num = 1
-        
-    #set clothes for the day 
-    def changeDay(self, dayNum):
-        self.num = dayNum
-'''    
+        screen.blit(self.avatar, (0, 0))
 
 #Block class that basically just takes an image and constructs it so you can set the position of the image
 class Block(pygame.sprite.Sprite):
-    def __init__(self, image, size=(128, 128), pos=None):
+    def __init__(self, imagefile, size=(150, 150), pos=None):
         super().__init__()
         self.visible = False
+        self.imagefile = imagefile
 
         try:
-            self.image = pygame.transform.scale(image, size)
+            self.image = pygame.transform.scale(imagefile, size)
         except pygame.error as e:
-            print(f"Could not load image {image}: {e}")
+            print(f"Could not load image {imagefile}: {e}")
             self.image = pygame.Surface(size)
             self.image.fill((255, 0, 0))  # Red fallback
 
@@ -115,6 +116,11 @@ class Block(pygame.sprite.Sprite):
     def draw(self, surface):
         if self.visible:
             surface.blit(self.image, self.rect)
+    
+    def is_clicked(self, mouse_pos):
+        return self.rect.collidepoint(mouse_pos)
+
+
 
 #2 Groups that aren't really used for much but categorization of elements
 day1_shirts = pygame.sprite.Group()
@@ -138,7 +144,7 @@ day1_shirt4 = Block(day1_top4, pos=(midwidth*1.1, midheight*0.6))
 day2_shirt1 = Block(day2_top1, pos=(midwidth*1.1, midheight*0.6))
 day2_shirt2 = Block(day2_top2, pos=(midwidth*1.1, midheight*0.6))
 day2_shirt3 = Block(day2_top3, pos=(midwidth*1.1, midheight*0.6))
-day2_shirt3 = Block(day2_top4, pos=(midwidth*1.1, midheight*0.6))
+day2_shirt4 = Block(day2_top4, pos=(midwidth*1.1, midheight*0.6))
 
 day3_shirt1 = Block(day3_top1, pos=(midwidth*1.1, midheight*0.6))
 day3_shirt2 = Block(day3_top2, pos=(midwidth*1.1, midheight*0.6))
@@ -175,81 +181,123 @@ day1_shirts.add(day1_shirt2)
 day1_shirts.add(day1_shirt3)
 day1_shirts.add(day1_shirt4)
 
-day2_shirts.add(day1_shirt1)
-day2_shirts.add(day1_shirt2)
-day2_shirts.add(day1_shirt3)
-day2_shirts.add(day1_shirt4)
+day2_shirts.add(day2_shirt1)
+day2_shirts.add(day2_shirt2)
+day2_shirts.add(day2_shirt3)
+day2_shirts.add(day2_shirt4)
 
-day3_shirts.add(day1_shirt1)
-day3_shirts.add(day1_shirt2)
-day3_shirts.add(day1_shirt3)
-day3_shirts.add(day1_shirt4)
+day3_shirts.add(day3_shirt1)
+day3_shirts.add(day3_shirt2)
+day3_shirts.add(day3_shirt3)
+day3_shirts.add(day3_shirt4)
 
-day4_shirts.add(day1_shirt1)
-day4_shirts.add(day1_shirt2)
-day4_shirts.add(day1_shirt3)
-day4_shirts.add(day1_shirt4)
+day4_shirts.add(day4_shirt1)
+day4_shirts.add(day4_shirt2)
+day4_shirts.add(day4_shirt3)
+day4_shirts.add(day4_shirt4)
 
 day1_pants.add(day1_pants1)
 day1_pants.add(day1_pants2)
 day1_pants.add(day1_pants3)
 day1_pants.add(day1_pants4)
 
-day2_pants.add(day1_pants1)
-day2_pants.add(day1_pants2)
-day2_pants.add(day1_pants3)
-day2_pants.add(day1_pants4)
+day2_pants.add(day2_pants1)
+day2_pants.add(day2_pants2)
+day2_pants.add(day2_pants3)
+day2_pants.add(day2_pants4)
 
-day3_pants.add(day1_pants1)
-day3_pants.add(day1_pants2)
-day3_pants.add(day1_pants3)
-day3_pants.add(day1_pants4)
+day3_pants.add(day3_pants1)
+day3_pants.add(day3_pants2)
+day3_pants.add(day3_pants3)
+day3_pants.add(day3_pants4)
 
-day4_pants.add(day1_pants1)
-day4_pants.add(day1_pants2)
-day4_pants.add(day1_pants3)
-day4_pants.add(day1_pants4)
+day4_pants.add(day4_pants1)
+day4_pants.add(day4_pants2)
+day4_pants.add(day4_pants3)
+day4_pants.add(day4_pants4)
 
 dayspants = [day1_pants,day2_pants,day3_pants,day4_pants]
 daystops = [day1_shirts,day2_shirts,day3_shirts,day4_shirts]
 
 #Makes a list of all blocks. blocks is an array
+global current_group_shirts
+global current_group_pants 
+
 current_group_shirts = day1_shirts.sprites()
 current_group_pants = day1_pants.sprites()
 
+level_up_outfits = [(any, day1_pants3), (day2_shirt3, any), (day3_shirt4, day3_pants1), (day4_shirt3, day4_pants4)]
 
 #Function so when you click on the arrow, it changes to the next block in the group
-current_index = 0
+current_index_top = 0
+current_index_bottom = 0
+'''
 current_group_shirts = day1_shirts.sprites()
 current_group_pants = day1_pants.sprites()
 current_group_shirts[current_index].visible = True
 current_group_pants[current_index].visible = True
+'''
 
 class Day:
-    def pick_group(day_num):
+    def __init__(self):
+        self.day = 1
+        pass
+    
+    def change_group(self, day_num):
             global current_group_pants, current_group_shirts
-            current_group_pants = dayspants[day].sprites()
-            current_group_shirts = daystops[day].sprites()
+            current_group_pants = dayspants[day_num-1].sprites()
+            current_group_shirts = daystops[day_num-1].sprites()
+            current_group_shirts[current_index_top].visible = True
+            current_group_pants[current_index_bottom].visible = True
 
-    match day: 
-        case 1:
-            pick_group(1)
-        case 2:
-            pick_group(2)
-        case 3:
-            pick_group(3)
-        case 4: 
-            pick_group(4)
+    def pick_group(self):
+        match self.day: 
+            case 1:
+                self.change_group(1)
+            case 2:
+                self.change_group(2)
+            case 3:
+                self.change_group(3)
+            case 4: 
+                self.change_group(4)
 
+day = Day()
+day.pick_group()
 
-def show_next_block(group):
-    global current_index
+def show_next_block_top(group):
+    global current_index_top
     # Hide current block
-    group[current_index].visible = False
+    group[current_index_top].visible = False
     # Increment index and wrap around
-    current_index = (current_index + 1) % len(group)
+    current_index_top = (current_index_top + 1) % len(group)
     # Show next block
-    group[current_index].visible = True
+    group[current_index_top].visible = True
+
+def show_next_block_bottom(group):
+    global current_index_bottom
+    # Hide current block
+    group[current_index_bottom].visible = False
+    # Increment index and wrap around
+    current_index_bottom = (current_index_bottom + 1) % len(group)
+    # Show next block
+    group[current_index_bottom].visible = True
+
+def show_prev_block_top(group):
+    global current_index_top
+    # Hide current block
+    group[current_index_top].visible = False
+    # Increment index and wrap around
+    current_index_top = (current_index_top - 1) % len(group)
+    # Show next block
+    group[current_index_top].visible = True
+def show_prev_block_bottom(group):
+    global current_index_bottom
+    # Hide current block
+    group[current_index_bottom].visible = False
+    # Increment index and wrap around
+    current_index_bottom = (current_index_bottom - 1) % len(group)
+    # Show next block
+    group[current_index_bottom].visible = True
 
 # buttons
 buttonWidth = screen.get_width()/8
@@ -273,9 +321,10 @@ class Button:
         pygame.draw.rect(screen, "green", self.rectangle)
         screen.blit(self.scaled_image, self.rectangle)
 
-        
+    
     def is_clicked(self, mouse_pos):
         return self.rectangle.collidepoint(mouse_pos)
+    
 
 #This is another button implementation that I made for the left and right arrows of choosing clothes
 class Arrow: 
@@ -284,7 +333,6 @@ class Arrow:
         self.scaled_image = pygame.transform.scale(self.image, (width, height))
         self.rectangle = self.scaled_image.get_rect()
         self.right = right
-        
         
         if pos is None:
             self.rectangle.center = (midwidth, midheight)
@@ -314,15 +362,59 @@ class Transparent_Box:
         screen.blit(self.surface, self.rect.topleft)
 
 
+class Text_Box:
+    def __init__(self, pos, caption, box_size=(400, 150)):
+        
+        self.font = pygame.font.Font(None, 28)  # Smaller font size
+        self.text_content = caption
+        self.text_color = (255, 255, 255)  # White text
+        self.text_background_color = (255, 209, 220)  # Black box
+
+        # Render the text surface
+        self.text_surface = self.font.render(
+            self.text_content, True, self.text_color
+        )
+        self.text_rect = self.text_surface.get_rect()
+
+        # Set up the box rectangle (bigger than text)
+        self.box_rect = pygame.Rect(0, 0, *box_size)
+        self.box_rect.center = pos
+
+        # Center the text inside the box
+        self.text_rect.center = self.box_rect.center
+
+        # Flag to control visibility
+        self.show_text_box = True
+
+    def draw(self, screen):
+        if self.show_text_box:
+            pygame.draw.rect(screen, self.text_background_color, self.box_rect, border_radius=12)
+            pygame.draw.rect(screen, (255, 255, 255), self.box_rect, 2, border_radius=12)  # Optional white border
+            screen.blit(self.text_surface, self.text_rect)
+
+    def dismiss(self):
+        self.show_text_box = False
+    
+    def is_clicked(self, mouse_pos):
+        return self.box_rect.collidepoint(mouse_pos)
+
 #Creates elements
+bodyTop = pygame.transform.scale(current_group_shirts[current_index_top].imagefile,(midwidth*.48,midheight/1.4))
+bodyBot = pygame.transform.scale(current_group_pants[current_index_bottom].imagefile, (midwidth*.48,midheight/1.4))
+text_box = Text_Box((midwidth*0.8,midheight*1.6), "OOh la la, looks like red is in!" , (500,100))
+text_box3 = Text_Box((midwidth*0.8,midheight*1.6), "Everyone's loving pretty punk core recently." , (500,100))
+text_box4 = Text_Box((midwidth*0.8,midheight*1.6), "Feral Whisker Anarchy Grunge. It's the only way." , (500,100))
+text_box2 = Text_Box((midwidth,midheight), "this shirt is OLD!" , (200,100))
+show_box2 = False
 box = Transparent_Box((midwidth, midheight*0.45), (300,400), (128, 128, 128))
 button1 = Button(screen.get_height() - buttonHeight - (screen.get_width()/90),camera, closet )
-arrowTopRight = Arrow(arrow, buttonWidth-50, buttonHeight-50, 1, pos=(midwidth*1.4, midheight*0.6))
-arrowTopLeft = Arrow(arrow, buttonWidth-50, buttonHeight-50, 0, pos=(midwidth*0.95, midheight*0.6))
-arrowBotRight = Arrow(arrow, buttonWidth-50, buttonHeight-50, 1, pos=(midwidth*1.4, midheight))
-arrowBotLeft = Arrow(arrow, buttonWidth-50, buttonHeight-50, 0, pos=(midwidth*0.95, midheight))
-bg = Background(day1)
+arrowTopRight = Arrow(arrow, buttonWidth-50, buttonHeight-50, 1, pos=(midwidth*1.34, midheight*0.65))
+arrowTopLeft = Arrow(arrow, buttonWidth-50, buttonHeight-50, 0, pos=(midwidth*0.95, midheight*0.65))
+arrowBotRight = Arrow(arrow, buttonWidth-50, buttonHeight-50, 1, pos=(midwidth*1.34, midheight * 0.95))
+arrowBotLeft = Arrow(arrow, buttonWidth-50, buttonHeight-50, 0, pos=(midwidth*0.95, midheight * 0.95))
+bg = Background(day1, av1)
 bg.draw(screen)
+text_box.draw(screen)
 
 while running:
     # poll for events
@@ -334,50 +426,132 @@ while running:
             if event.button == 1:
                 #if the closet/camera button is clicked, we change the state of the game to the opposite
                 if button1.rectangle.collidepoint(event.pos):
-                    print("Button was clicked!")
                     if closet: 
                         arrow = pygame.image.load("images/arrow-button.png").convert()
                         closet = not closet
                         bg.day +=1
+                        day.day +=1
+                        outfit = (current_group_shirts[current_index_top], current_group_pants[current_index_bottom])
                         match bg.day:
-                            case 1:
-                                bg.setBackground(day1)
                             case 2:
-                                bg.setBackground(day2)
+                                bg.setBackground(day1_good, av1)
                             case 3:
-                                bg.setBackground(day3)
+                                if outfit in level_up_outfits :
+                                    bg.setBackground(day2_good,av2)
+                                else:
+                                    bg.setBackground(day2_bad, av2)
+                                    bg.day-=1
+                                    day.day -=1
                             case 4:
-                                bg.setBackground(day4)
-                        print(bg.day)
+                                if outfit in level_up_outfits :
+                                    bg.setBackground(day3_good,av3)
+                                    bg.day-=1
+                                    day.day -=1
+                                else:
+                                    bg.setBackground(day3_bad, av3)
+                            case 5:
+                                bg.setBackground(day4_bad, av4)
                         button1.updateImage() #changes the image depending on where we are
+                        day.pick_group()
                     else:
                         arrow = pygame.image.load("images/arrow-button.png").convert()
                         closet = not closet
                         button1.updateImage()
-                if arrow_button.is_clicked(event.pos):
-                    show_next_block ()
-                
+                        topVisible = False
+                        botVisible = False
+                        match bg.day:
+                            case 1:
+                                bg.setBackground(day1, av1)
+                            case 2:
+                                bg.setBackground(day2, av2)
+                            case 3:
+                                bg.setBackground(day3, av3)
+                            case _:
+                                bg.setBackground(day4, av4)
+                        
+                if text_box.is_clicked(event.pos):
+                    text_box.dismiss()
+                    text_box.draw(screen)
+                if text_box2.is_clicked(event.pos):
+                    text_box2.dismiss()
+                    text_box2.draw(screen)
+                if arrowTopRight.is_clicked(event.pos):
+                    show_next_block_top(current_group_shirts)
+                if arrowTopLeft.is_clicked(event.pos):
+                    show_prev_block_top(current_group_shirts)
+                if arrowBotLeft.is_clicked(event.pos):
+                    show_prev_block_bottom(current_group_pants)
+                if arrowBotRight.is_clicked(event.pos):
+                    show_next_block_bottom(current_group_pants)
+                if current_group_pants[current_index_bottom].is_clicked(event.pos):
+                    bodyBot = pygame.transform.scale(current_group_pants[current_index_bottom].imagefile, (midwidth*.48,midheight/1.4))
+                    botVisible = True
+                    print("I CLICKED THE PANTS")
+                shirt = current_group_shirts[current_index_top]
+                if current_group_shirts[current_index_top].is_clicked(event.pos):
+                    bodyTop = pygame.transform.scale(current_group_shirts[current_index_top].imagefile,(midwidth*.48,midheight/1.4))
+                    topVisible = True
+                '''
+                    match bg.day:
+                        case 2:
+                            if shirt.visible and shirt.is_clicked(event.pos):
+                                if shirt in day1_shirts.sprites():
+                                    show_box2 = True
+                                else:
+                                    print("I CLICKED THE SHIRT")
+                        case 3:
+                            if shirt.visible and shirt.is_clicked(event.pos):
+                                if shirt in day2_shirts.sprites():
+                                    print("This is old clothes!")
+                                else:
+                                    print("I CLICKED THE SHIRT")
+                        case 4:
+                            if shirt.visible and shirt.is_clicked(event.pos):
+                                if shirt in day3_shirts.sprites():
+                                    print("This is old clothes!")
+                                else:
+                                    print("I CLICKED THE SHIRT")
+                '''
+               
     # fill the screen with a color to wipe away anything from last frame
     if closet:
         #screen.fill(pygame.Color(255, 217, 228))
          #put the background to the variable background2
-        day1_pants.draw(screen)
+        #day1_pants.draw(screen)
         bg.draw(screen)
+        if botVisible:
+            screen.blit(bodyBot,(midwidth/2.42,midheight/0.95))
+        if topVisible:
+            screen.blit(bodyTop,(midwidth/2.42,midheight/1.6))
+        box.draw(screen)
+        arrowTopRight.draw()
+        arrowTopLeft.draw()
+        arrowBotRight.draw()
+        arrowBotLeft.draw()
+        for block in current_group_pants:
+            block.draw(screen)
+        for block in current_group_shirts:
+            block.draw(screen)
+        if bg.day is 2:
+            text_box.draw(screen)
+        elif bg.day is 3:
+            text_box3.draw(screen)
+        elif bg.day is 4:
+            text_box4.draw(screen)
     else:
         screen.fill(pygame.Color(222, 242, 255))
-
-    box.draw(screen)
+        bg.draw(screen)
+        if botVisible:
+            screen.blit(bodyBot,(midwidth/2.42,midheight/0.95))
+        if topVisible:
+            screen.blit(bodyTop, (midwidth/2.42,midheight/1.6))
+            
     button1.draw()
-    arrowTopRight.draw()
-    arrowTopLeft.draw()
-    arrowBotRight.draw()
-    arrowBotLeft.draw()
-    '''
-    for block in current_group_pants:
-        block.draw(screen)
-    for block in current_group_shirts:
-        block.draw(screen)
-    '''
+
+
+
+
+    
     ##pygame.draw.circle(screen, "red", player_pos, 40)
 
     keys = pygame.key.get_pressed()
