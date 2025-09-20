@@ -12,7 +12,7 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 closet = True
-arrow = pygame.image.load("images/arrow-button.png").convert()
+arrow = pygame.image.load("images/closet.PNG").convert()
 mirror = pygame.image.load("images/camera.PNG").convert()
 
 class Block(pygame.sprite.Sprite):
