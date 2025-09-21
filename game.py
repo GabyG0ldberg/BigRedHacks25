@@ -23,6 +23,7 @@ botVisible = False
 corTop = False
 corBot = False
 start = True
+preface = False
 
 #initalizing images
 arrow = pygame.image.load("images/arrow-button.png").convert_alpha()
@@ -37,6 +38,13 @@ av2 = pygame.image.load("images/av2.PNG").convert_alpha()
 av3 = pygame.image.load("images/av3.PNG").convert_alpha()
 av4 = pygame.image.load("images/av4.PNG").convert_alpha()
 transparent = pygame.image.load("images/transparent.PNG").convert_alpha()
+finallight = pygame.image.load("images/finallight.PNG").convert()
+finallight = pygame.transform.scale(finallight,(int(screen_width* 0.75), int((screen_width*.75)* 3 / 4)))
+finaldark = pygame.image.load("images/finaldark.PNG").convert()
+finaldark = pygame.transform.scale(finaldark,(int(screen_width* 0.75), int((screen_width*.75)* 3 / 4)))
+title = pygame.image.load("images/title.PNG").convert_alpha()
+intro = pygame.image.load("images/Intro.png").convert_alpha()
+intro = pygame.transform.scale(intro,(int(screen_width* 0.75), int((screen_width*.75)* 3 / 4)))
 day1_bad = pygame.image.load("images/day1_bad.png").convert()
 day2_bad = pygame.image.load("images/day2_bad.png").convert()
 day3_bad = pygame.image.load("images/day3_bad.png").convert()
@@ -87,16 +95,48 @@ day4_bot4 = pygame.image.load("images/clothing/bottom-16.png").convert_alpha() #
 class Background:
     def __init__(self, file,fileav):
         self.setBackground(file, fileav)
-        self.day = 0
+        self.day = -1
+        self.alpha = 255
+        self.fading = False
+        self.visible = True 
+        
     def setBackground(self, filebg, fileav):
         self.background = filebg #image
         self.background = pygame.transform.scale(self.background,(int(screen_width* 0.75), int((screen_width*.75)* 3 / 4)))
         self.avatar = fileav
         self.avatar = pygame.transform.scale(self.avatar, (screen.get_width()*.9, screen.get_height()*1.05))
 
+    def start_fade(self):
+        if self.visible:
+            self.fading = True
+
+    def update(self):
+            if self.fading:
+                self.alpha -= 5  # Fade speed
+                if self.alpha <= 0:
+                    self.alpha = 0
+                    self.fading = False
+                    self.visible = False  # Optional, for hiding
+                    self.reset()
+
+    def reset(self):
+        self.alpha = 255
+        self.fading = False
+        self.visible = True
+
     def draw(self, screen):
-        screen.blit(self.background, (0, 0))
-        screen.blit(self.avatar, (-1 * screen_width/15, screen_height/25))
+        if not self.visible:
+            return
+
+        # Copy and apply alpha to background and avatar
+        bg_surface = self.background.convert_alpha()
+        av_surface = self.avatar.convert_alpha()
+
+        bg_surface.set_alpha(self.alpha)
+        av_surface.set_alpha(self.alpha)
+
+        screen.blit(bg_surface, (0, 0))
+        screen.blit(av_surface, (-1 * screen_width / 15, screen_height / 25))
 
 #Block class that basically just takes an image and constructs it so you can set the position of the image
 class Block(pygame.sprite.Sprite):
@@ -130,7 +170,6 @@ class Block(pygame.sprite.Sprite):
     
     def is_clicked(self, mouse_pos):
         return self.hitbox.collidepoint(mouse_pos)
-
 
 
 #2 Groups that aren't really used for much but categorization of elements
@@ -372,10 +411,11 @@ class Text_Box:
         
         self.font = pygame.font.Font(None, 28)  # Smaller font size
         self.text_content = caption
-        self.text_color = (255, 255, 255)  # White text
-        self.text_background_color = (255, 209, 220)  # Pink box
+        self.text_color = (0, 0, 0)  # Black text
+        self.text_background_color = (255, 209, 220, 255)  # Pink box
         if endScreen:
-            self.text_background_color = (37, 15, 48)  # Dark box
+            self.text_background_color = (37, 15, 48, 0)
+            self.text_color = (255, 255, 255)  # White text
 
         # Render the text surface
         self.text_surface = self.font.render(
@@ -404,8 +444,7 @@ class Text_Box:
             return
         # Draw the background box using a new surface so it supports alpha
         box_surface = pygame.Surface(self.box_rect.size, pygame.SRCALPHA)
-        box_surface.fill((*self.text_background_color, self.alpha))
-        
+        box_surface.fill((self.text_background_color, self.alpha))
         
         # Blit the faded box surface
         screen.blit(box_surface, self.box_rect.topleft)
@@ -446,20 +485,21 @@ class Text_Box:
 bodyTop = pygame.transform.scale(current_group_shirts[current_index_top].imagefile, (screen.get_width()*.9, screen.get_height()*1.05))
 bodyBot = pygame.transform.scale(current_group_pants[current_index_bottom].imagefile, (screen.get_width()*.9, screen.get_height()*1.05))
 #text_box = Text_Box((midwidth*0.8,midheight*1.6), "OOh la la, looks like red is in!" , (500,100))
-text_refresh = Text_Box( (midwidth,midheight), "REFRESH" , (200,100) )
+text_refresh = Text_Box( (midwidth*1.6,midheight*0.2), "REFRESH" , (200,100) )
 text_box = Text_Box((midwidth*0.8,midheight*1.6), "OOh la la, looks like festive clothes are in!" , (500,100))
-text_box3 = Text_Box((midwidth*0.8,midheight*1.6), "Everyone's loving monochromatic zoo core recently..." , (500,100))
-text_box4 = Text_Box((midwidth*0.8,midheight*1.6), "Feral Whisker Anarchy Grunge. It's the only way to stay relevant." , (600,100))
+text_box3 = Text_Box((midwidth*0.8,midheight*1.6), "Everyone's loving monochromatic zoo core recently..." , (530,100))
+text_box4 = Text_Box((midwidth*0.8,midheight*1.6), "Feral Whisker Anarchy Grunge. It's the only way to stay relevant." , (650,100))
 box = Transparent_Box((midwidth, midheight*0.45), (300,400), (128, 128, 128))
 button1 = Button(screen.get_height() - buttonHeight - (screen.get_width()/90),camera, closet )
 arrowTopRight = Arrow(arrow, buttonWidth-50, buttonHeight-50, 1, pos=(midwidth*1.34, midheight*0.65))
 arrowTopLeft = Arrow(arrow, buttonWidth-50, buttonHeight-50, 0, pos=(midwidth*0.95, midheight*0.65))
 arrowBotRight = Arrow(arrow, buttonWidth-50, buttonHeight-50, 1, pos=(midwidth*1.34, midheight * 0.95))
 arrowBotLeft = Arrow(arrow, buttonWidth-50, buttonHeight-50, 0, pos=(midwidth*0.95, midheight * 0.95))
-bg = Background(day4, transparent)
+bg = Background(title, transparent)
 bg.draw(screen)
 text_box.draw(screen)
 last_outfit_count = 0
+endBackground = Background(finallight, transparent)
 
 while running:
     # poll for events
@@ -499,7 +539,10 @@ while running:
                                 last_outfit_count+=1
                                 if(last_outfit_count==7): 
                                     endScreen = True
+                                    bg.setBackground(finallight, transparent)
+                                    endBackground.visible = True
                                     text_refresh = Text_Box( (midwidth,midheight), "REFRESH" , (200,100) )
+                                    text_refresh.visible = True
                                     
                         button1.updateImage() #changes the image depending on where we are
                         day.pick_group()
@@ -524,7 +567,7 @@ while running:
                                 bg.setBackground(day4, av4)
                                 text_box4.visible = True
                             case _:
-                                bg.setBackground(day4, av4)
+                                bg.setBackground(day4,av4)
                                 text_refresh.visible = True                                
                 if text_box.is_clicked(event.pos):
                     text_box.start_fade()
@@ -534,6 +577,7 @@ while running:
                     text_box4.start_fade()
                 if text_refresh.is_clicked(event.pos):
                     text_refresh.start_fade()
+                    endBackground.start_fade()
                 if arrowTopRight.is_clicked(event.pos):
                     show_next_block_top(current_group_shirts)
                 if arrowTopLeft.is_clicked(event.pos):
@@ -567,16 +611,23 @@ while running:
                             corTop = True
                         case (_,_):
                             corTop = False
+                if preface:
+                    print("preface???")
+                    preface = not preface
+                    bg.day=1
+                    bg.setBackground(day1,av1)
                 if start:
                     start = not start
-                    bg.day+=1
-                    bg.setBackground(day1,av1)
+                    preface = True
+                    bg.setBackground(intro,transparent)
+
                
     if(endScreen):
-        screen.fill(pygame.Color(37, 15, 48))
+        screen.blit(finaldark, (0,0))
+        endBackground.draw(screen)
+        endBackground.update()
         text_refresh.draw(screen)
         text_refresh.update()
-        # Draw (if still visible)
         text_refresh.draw(screen)
     # fill the screen with a color to wipe away anything from last frame
     elif start:
@@ -617,6 +668,8 @@ while running:
         if topVisible:
             screen.blit(bodyTop, (-1 * screen_width/15, screen_height/25))
         button1.draw()
+    if preface:
+        bg.draw(screen)
     # flip() the display to put your work on screen
     pygame.display.flip()
 
