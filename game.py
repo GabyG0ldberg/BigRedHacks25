@@ -414,7 +414,7 @@ class Text_Box:
         self.text_color = (0, 0, 0)  # Black text
         self.text_background_color = (255, 209, 220, 255)  # Pink box
         if endScreen:
-            self.text_background_color = (37, 15, 48, 0)
+            self.text_background_color = (43, 55, 61, 0)
             self.text_color = (255, 255, 255)  # White text
 
         # Render the text surface
@@ -432,6 +432,9 @@ class Text_Box:
 
         self.text_surface = self.font.render(self.text_content, True, self.text_color)
 
+        #box_surface = pygame.Surface(self.box_rect.size, pygame.SRCALPHA)
+
+
         self.alpha = 255
         self.fading = False
         self.visible = False
@@ -442,17 +445,25 @@ class Text_Box:
     def draw(self, screen):
         if not self.visible:
             return
-        # Draw the background box using a new surface so it supports alpha
+
+        # Create background surface with alpha support
         box_surface = pygame.Surface(self.box_rect.size, pygame.SRCALPHA)
-        box_surface.fill((self.text_background_color, self.alpha))
-        
-        # Blit the faded box surface
+
+        # Fix: Prevent 5-element tuple error
+    
+        if endScreen:
+    # Use fully transparent background
+            fill_color = (*self.text_background_color[:3], 0)
+        else:
+        # Respect fading
+            fill_color = (*self.text_background_color[:3], self.alpha)
+            box_surface.fill(fill_color)
+
+        # Blit background and faded text
         screen.blit(box_surface, self.box_rect.topleft)
 
-        # Make a copy of the text surface to apply fade
         text_surface = self.text_surface.copy()
         text_surface.set_alpha(self.alpha)
-
         screen.blit(text_surface, self.text_rect)
 
     def start_fade(self):
@@ -485,7 +496,7 @@ class Text_Box:
 bodyTop = pygame.transform.scale(current_group_shirts[current_index_top].imagefile, (screen.get_width()*.9, screen.get_height()*1.05))
 bodyBot = pygame.transform.scale(current_group_pants[current_index_bottom].imagefile, (screen.get_width()*.9, screen.get_height()*1.05))
 #text_box = Text_Box((midwidth*0.8,midheight*1.6), "OOh la la, looks like red is in!" , (500,100))
-text_refresh = Text_Box( (midwidth*1.6,midheight*0.2), "REFRESH" , (200,100) )
+text_refresh = Text_Box( (midwidth*5,midheight*5), "REFRESH" , (200,100) )
 text_box = Text_Box((midwidth*0.8,midheight*1.6), "OOh la la, looks like festive clothes are in!" , (500,100))
 text_box3 = Text_Box((midwidth*0.8,midheight*1.6), "Everyone's loving monochromatic zoo core recently..." , (530,100))
 text_box4 = Text_Box((midwidth*0.8,midheight*1.6), "Feral Whisker Anarchy Grunge. It's the only way to stay relevant." , (650,100))
@@ -541,7 +552,8 @@ while running:
                                     endScreen = True
                                     bg.setBackground(finallight, transparent)
                                     endBackground.visible = True
-                                    text_refresh = Text_Box( (midwidth,midheight), "REFRESH" , (200,100) )
+                                    text_refresh = Text_Box( (midwidth*1.2,midheight*0.8), "REFRESH" , (200,100) )
+                                    text_refresh.draw(screen)
                                     text_refresh.visible = True
                                     
                         button1.updateImage() #changes the image depending on where we are
